@@ -2,7 +2,7 @@ language: none
 runtime:
 branches:
     only:
-    - develop
+    - develop*
     build:
     
       pre_ci:
