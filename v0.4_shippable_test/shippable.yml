@@ -1,71 +1,31 @@
-language: none:      # language runtime
-      - #language version
-    
-    # Optional: select the node pool or node pools you want to run this job on,if different from default
-    runtime:
-    
-    services:
-      - #any supported service
-    
-    depth: #postive integer
-    
-    gitConfig:
-      - #git config 1
-      - #git config 2
-    
-    vote:
-      on_success:
-        Verified: 1
-        Code-Review: 2
-      on_failure:
-        Verified: -1
-        Code-Review: -2
-    
-    env:
-      - #env1=foo
-      - #env2=bar
-    
-    matrix:
-    
+language: php
+runtime:
+branches:
+    only:
+    - Test_task
     build:
     
       pre_ci:
-    
+      - docker build -t v0.4 .
+
       pre_ci_boot:
-        image_name:
-        image_tag:
-        pull:
-        options:
+        image_name: v0.4
+        image_tag: latest
+        pull: true
       ci:
-        - #command1
-        - #command2
+        - apt update
+        - nginx -t
+        - service nginx status
+        - service nginx restart
       post_ci:
-        - #command1
-        - #command2
+        - docker commit $SHIPPABLE_CONTAINER_NAME kaloblok/v0.3:ci_test
+        - docker push kaloblok/v0.3:ci_test
       on_success:
-        - #command1
-        - #command2
+        - echo "CI was successfully completed"
       on_failure:
-        - #command1
-        - #command2
-      always:
-        - #command1
-        - #command2
-      cache:
-      cache_dir_list:
-        - #dir1
-      push:
-        - #command1
+        - echo "CI was FAILED"
     
-    integrations:
-     notifications:
-       - integrationName:
-         type:
-         recipients:
-           - #recp1
-           - #recp2
-    
+      integrations:
       hub:
-        - integrationName:
-          type:
-          agent_only:
+        - integrationName: Docker-Hub-integration
+          type: dockerRegistryLogin
